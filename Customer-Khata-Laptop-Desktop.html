@@ -85,8 +85,8 @@
       .dash{align-items:stretch}
       .dash .val{white-space:nowrap}
       /* v6.25: Dashboard arrangement — compact 3-per-row stat grid like
-         the SSC Khata reference (Farman 2026-11-13). One grid holds all
-         7 stat cards (3+3+1) with small even gaps, so no half-empty row
+         the SSC Khata reference (Farman 2026-11-13). One grid holds the
+         visible stat cards with small even gaps, so no half-empty row
          is left over. Layout only — same cards, order, text, colours,
          values. NOTE: not .grid3 — its small-screen media query would
          collapse this to 2 columns on phones. Quick Actions gap
@@ -103,7 +103,10 @@
          in width AND height on every phone width. (v6.27: Day Expense
          card removed, 6 cards left.) (v6.45: 5 cards — row 1 keeps 3,
          row 2 is its own full-width flex row .dashgrid2 with the
-         last 2 cards at half width each, slightly larger; see below.) */
+         last 2 cards at half width each, slightly larger; see below.)
+         (v6.59: Cash in/out today + Total Expense removed, 4 cards left
+         — all-visible renders as two .dashgrid2 rows (2+2); the 3-per-row
+         .dashgrid is now only the guest re-flow grid.) */
       .dashgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch}
       .dashgrid .stat{min-width:0}
       /* v6.26: value capped to its card (so fitDashAmounts can measure
@@ -130,6 +133,18 @@
       .dashgrid2 .stat .lab{min-height:30px;font-size:12px}
       .dashgrid2 .stat .sic{width:45px;height:45px;min-width:45px;border-radius:13px}
       .dashgrid2 .stat .sic svg{width:22px;height:22px}
+      /* v6.59: Today section — same look as the stat cards, own classes
+         (.tdash/.tstat) so the stat-card counts in the harness keep
+         measuring exactly the 4 stat cards. Farman 2026-11-26: the Today
+         cards use the app's brand blue (--brand, #2563eb — same blue as
+         the header) for icon + value, so the section reads as its own
+         group, clearly distinct from the green/red stat cards. */
+      .tdash{display:flex;gap:8px;align-items:stretch}
+      .tdash .tstat{flex:1;min-width:0;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 6px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+      .tdash .tstat .sic{width:45px;height:45px;min-width:45px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff}
+      .tdash .tstat .sic svg{width:22px;height:22px}
+      .tdash .tstat .lab{font-size:12px;color:var(--muted);font-weight:600;line-height:1.25;min-height:30px}
+      .tdash .tstat .val{font-size:22px;font-weight:800;margin-top:0;max-width:100%;overflow:hidden;line-height:28px;white-space:nowrap;color:var(--brand)}
       .stat .val small{font-size:13px;font-weight:600;color:var(--muted)}
       /* v6.33: per-doctor blocks on the Dashboard (Farman 2026-11-15,
          design confirmed) — 2-column grid of white blocks, same
@@ -443,60 +458,68 @@
         body{background:#fff}
         main{padding:0}
       }
-          /* ============ DESKTOP (laptop) layout — Windows laptop build, v6.58.
-         Phone layout is untouched: these rules only apply at >=900px width.
-         Layout only — no JS, text, colours, Firebase or data logic changed.
-         The bottom nav becomes a fixed LEFT sidebar; the content area
-         widens to a centred ~1200px column; dashboard cards get airier;
-         Khata rows lay their Sr / Visit ID / Ph lines out horizontally. */
-      @media (min-width:900px){
-        body{font-size:16px}
-        /* Header spans the full width */
-        .top-in{max-width:none;padding:0 24px}
-        .top h1{font-size:21px}
-        /* Bottom nav -> fixed LEFT sidebar (tucks under the sticky header) */
-        nav.bottom{top:0;bottom:0;left:0;right:auto;width:224px;border-top:0;border-right:1px solid var(--line);padding:80px 0 16px;z-index:20}
-        .bottom-in{max-width:none;flex-direction:column;align-items:stretch;padding:14px 12px;gap:6px}
-        .bottom button{flex:none;width:100%;flex-direction:row;justify-content:flex-start;align-items:center;gap:12px;padding:13px 14px;font-size:15px;font-weight:700;border-radius:12px;text-align:start}
-        .bottom button svg{width:22px;height:22px;flex:none}
-        .bottom button.on{background:var(--brand-soft);color:var(--brand)}
-        /* Main content: clear the sidebar, cap width, airy padding */
-        main{max-width:1400px;margin:0 auto;padding:28px 32px 48px;padding-left:256px}
-        /* Dashboard: bigger, airier stat cards */
-        .dashgrid,.dashgrid2{gap:14px}
-        .stat{padding:20px 12px}
-        .stat .sic{width:48px;height:48px;border-radius:14px}
-        .stat .sic svg{width:24px;height:24px}
-        .stat .lab{font-size:12.5px}
-        .sec-title{font-size:18px;margin:24px 2px 10px}
-        /* Doctor blocks: 3 per row instead of 2 */
-        .docgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-        /* Quick actions: roomier buttons */
-        .quick{gap:14px}
-        .qbtn{padding:20px 12px;font-size:16px}
-        /* Khata: roomier totals strip */
-        .totstrip{padding:14px 12px}
-        .totstrip .tot b{font-size:18px}
-        .totstrip .tot span{font-size:13px}
-        /* Khata rows: wide-row layout — name on its own line, then
-           Sr / Visit ID / Ph side by side instead of stacked */
-        #khataList .rowitem{padding:16px 20px}
-        .rowitem .grow{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:22px;row-gap:2px}
-        .rowitem .nm{flex:1 1 100%;font-size:16px}
-        .rowitem .sub{font-size:13.5px}
-        .rowitem .amtblk .amt{font-size:19px}
-        .avatar{width:48px;height:48px;font-size:18px}
-        /* Search + buttons: roomier, not stretched awkwardly */
-        .searchbar input{padding:13px 16px;font-size:16px}
-        .btn{padding:13px 20px;font-size:16px}
-        /* FAB: bottom-right, clear of the sidebar (it sits bottom-left
-           on phones because RTL inline-end is the left side) */
-        .fab{bottom:24px;inset-inline-end:auto;left:auto;right:32px}
-        /* Sheets/modals: wider, centred */
-        .sheet{max-width:680px;padding:28px 26px}
-        /* Toast: lower, clear of the sidebar */
-        .toast{bottom:32px}
-      }
+          /* ============ DESKTOP (laptop) layout — Windows laptop build, v6.59.
+             Phone layout is untouched: these rules only apply at >=900px width.
+             Layout only — no JS, text, colours, Firebase or data logic changed.
+             The bottom nav becomes a fixed LEFT sidebar; the content area
+             widens to a centred ~1200px column; dashboard cards get airier;
+             Khata rows lay their Sr / Visit ID / Ph lines out horizontally.
+             (v6.59: the new "Today" section (.tdash/.tstat) gets the same
+             airy treatment as the stat cards.) */
+          @media (min-width:900px){
+            body{font-size:16px}
+            /* Header spans the full width */
+            .top-in{max-width:none;padding:0 24px}
+            .top h1{font-size:21px}
+            /* Bottom nav -> fixed LEFT sidebar (tucks under the sticky header) */
+            nav.bottom{top:0;bottom:0;left:0;right:auto;width:224px;border-top:0;border-right:1px solid var(--line);padding:80px 0 16px;z-index:20}
+            .bottom-in{max-width:none;flex-direction:column;align-items:stretch;padding:14px 12px;gap:6px}
+            .bottom button{flex:none;width:100%;flex-direction:row;justify-content:flex-start;align-items:center;gap:12px;padding:13px 14px;font-size:15px;font-weight:700;border-radius:12px;text-align:start}
+            .bottom button svg{width:22px;height:22px;flex:none}
+            .bottom button.on{background:var(--brand-soft);color:var(--brand)}
+            /* Main content: clear the sidebar, cap width, airy padding */
+            main{max-width:1400px;margin:0 auto;padding:28px 32px 48px;padding-left:256px}
+            /* Dashboard: bigger, airier stat cards */
+            .dashgrid,.dashgrid2{gap:14px}
+            .stat{padding:20px 12px}
+            .stat .sic{width:48px;height:48px;border-radius:14px}
+            .stat .sic svg{width:24px;height:24px}
+            .stat .lab{font-size:12.5px}
+            /* "Today" section: same airy treatment as the stat cards */
+            .tdash{gap:14px}
+            .tdash .tstat{padding:20px 12px}
+            .tdash .tstat .sic{width:48px;height:48px;border-radius:14px}
+            .tdash .tstat .sic svg{width:24px;height:24px}
+            .tdash .tstat .lab{font-size:12.5px}
+            .sec-title{font-size:18px;margin:24px 2px 10px}
+            /* Doctor blocks: 3 per row instead of 2 */
+            .docgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+            /* Quick actions: roomier buttons */
+            .quick{gap:14px}
+            .qbtn{padding:20px 12px;font-size:16px}
+            /* Khata: roomier totals strip */
+            .totstrip{padding:14px 12px}
+            .totstrip .tot b{font-size:18px}
+            .totstrip .tot span{font-size:13px}
+            /* Khata rows: wide-row layout — name on its own line, then
+               Sr / Visit ID / Ph side by side instead of stacked */
+            #khataList .rowitem{padding:16px 20px}
+            .rowitem .grow{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:22px;row-gap:2px}
+            .rowitem .nm{flex:1 1 100%;font-size:16px}
+            .rowitem .sub{font-size:13.5px}
+            .rowitem .amtblk .amt{font-size:19px}
+            .avatar{width:48px;height:48px;font-size:18px}
+            /* Search + buttons: roomier, not stretched awkwardly */
+            .searchbar input{padding:13px 16px;font-size:16px}
+            .btn{padding:13px 20px;font-size:16px}
+            /* FAB: bottom-right, clear of the sidebar (it sits bottom-left
+               on phones because RTL inline-end is the left side) */
+            .fab{bottom:24px;inset-inline-end:auto;left:auto;right:32px}
+            /* Sheets/modals: wider, centred */
+            .sheet{max-width:680px;padding:28px 26px}
+            /* Toast: lower, clear of the sidebar */
+            .toast{bottom:32px}
+          }
     </style>
   </head>
   <body class="logged-out">
@@ -556,7 +579,7 @@
         customers:"Customers", paidCustomers:"Paid Customers", paidTotal:"Paid Amount", suppliers:"Suppliers", searchParty:"Search name, patient, phone, ID, visit or serial…", searchProduct:"Search product…", searchDoctor:"Search doctor…",
         youllGet:"You'll Get", youllGive:"You'll Give", todaySale:"Today's Sale",
         totalSale:"Total Sale", totalExpense:"Total Expense", daySale:"Day Sale", dayExpense:"Day Expense", stockSale:"Sale", stockExpense:"Expense", navSale:"Sale",
-        doctors:"Doctors", doctorsSub:"One block per doctor — tap to open", doctorDashboard:"Doctor Dashboard", noDoctor:"Doctor nahi likha", patients:"Patients", givenShort:"Given", receivedShort:"Received", doctorPdfBtn:"PDF Report", doctorPdfTitle:"Doctor Report",
+        doctors:"Doctors", doctorPayments:"Doctor payments", doctorsSub:"One block per doctor — tap to open", doctorDashboard:"Doctor Dashboard", noDoctor:"Doctor nahi likha", patients:"Patients", givenShort:"Given", receivedShort:"Received", doctorPdfBtn:"PDF Report", doctorPdfTitle:"Doctor Report",
         totalStockValue:"Stock Value (cost)", newBill:"New Bill", addParty:"Add Party", addProduct:"Add Product", 
         quickActions:"Quick Actions", alerts:"Alerts", lowStock:"Low stock", expiring:"Expiring soon", expired:"Expired",
         noParties:"No entries yet", noPartiesSub:"Add your first customer to start the khata.",
@@ -642,7 +665,7 @@
         authPhoneHint:"Enter your mobile number, e.g. 03XX XXXXXXX or +92 3XX XXXXXXX.", codeSent:"Code sent — please check your SMS.",
         forgotPass:"Forgot password?", resetSent:"Password reset email sent — please check your inbox.", enterEmailFirst:"Please enter your email first.",
         dataSafe:"Your data is backed up in the cloud — it stays safe even if this phone is lost.",
-        todayIn:"Cash in today", todayOut:"Cash out today", topDues:"Top dues — remind them", printLedger:"Print / PDF",
+        todayIn:"Cash in today", todayOut:"Cash out today", todayCustomers:"Today's customers", todayAmount:"Today's amount", topDues:"Top dues — remind them", printLedger:"Print / PDF",
         sharePdf:"Share PDF", totalReport:"Total Report (PDF)", pdfDownloaded:"PDF downloaded — share it from Files / Downloads", pdfSaveFailed:"PDF could not be saved — please try again",
         cashParty:"Party", pdfBtn:"PDF",
         allDates:"All dates", allParties:"All parties", makePdf:"Make PDF", noEntriesSel:"No entries for this selection", cbStatus:"Status", cbStatusAll:"All", paidUpOnly:"Paid-up parties only", typeAll:"All", typeWillGet:"Will get only", typeWillPay:"Will pay only",
@@ -679,7 +702,7 @@
         customers:"گاہک", paidCustomers:"پیڈ کسٹمر", paidTotal:"پیڈ رقم", suppliers:"سپلائر", searchParty:"نام، مریض، فون، آئی ڈی، وزٹ یا سیریل نمبر تلاش کریں…", searchProduct:"پروڈکٹ تلاش کریں…", searchDoctor:"ڈاکٹر تلاش کریں…",
         youllGet:"لینے ہیں", youllGive:"دینے ہیں", todaySale:"آج کی فروخت",
         totalSale:"کل فروخت", totalExpense:"کل خرچہ", daySale:"آج کی فروخت", dayExpense:"آج کا خرچہ", stockSale:"فروخت", stockExpense:"خرچہ", navSale:"فروخت",
-        doctors:"ڈاکٹرز", doctorsSub:"ہر ڈاکٹر کا الگ بلاک — کھولنے کے لیے ٹیپ کریں", doctorDashboard:"ڈاکٹر ڈیش بورڈ", noDoctor:"ڈاکٹر نہیں لکھا", patients:"مریض", givenShort:"دیا", receivedShort:"ملا", doctorPdfBtn:"پی ڈی ایف رپورٹ", doctorPdfTitle:"ڈاکٹر رپورٹ",
+        doctors:"ڈاکٹرز", doctorPayments:"ڈاکٹر ادائیگیاں", doctorsSub:"ہر ڈاکٹر کا الگ بلاک — کھولنے کے لیے ٹیپ کریں", doctorDashboard:"ڈاکٹر ڈیش بورڈ", noDoctor:"ڈاکٹر نہیں لکھا", patients:"مریض", givenShort:"دیا", receivedShort:"ملا", doctorPdfBtn:"پی ڈی ایف رپورٹ", doctorPdfTitle:"ڈاکٹر رپورٹ",
         totalStockValue:"اسٹاک کی مالیت (خرید)", newBill:"نیا بل", addParty:"پارٹی شامل کریں", addProduct:"پروڈکٹ شامل کریں", 
         quickActions:"فوری کام", alerts:"خبردار", lowStock:"اسٹاک کم", expiring:"میعاد ختم ہونے والی", expired:"میعاد ختم",
         noParties:"ابھی کوئی اندراج نہیں", noPartiesSub:"کھاتہ شروع کرنے کے لیے پہلا گاہک شامل کریں۔",
@@ -765,7 +788,7 @@
         authPhoneHint:"موبائل نمبر لکھیں، مثلاً 03XX XXXXXXX یا +92 3XX XXXXXXX۔", codeSent:"کوڈ بھیج دیا گیا — ایس ایم ایس چیک کریں۔",
         forgotPass:"پاس ورڈ بھول گئے؟", resetSent:"ری سیٹ ای میل بھیج دی گئی — اپنا ان باکس چیک کریں۔", enterEmailFirst:"پہلے اپنا ای میل لکھیں۔",
         dataSafe:"آپ کا ڈیٹا کلاؤڈ میں محفوظ ہے — فون گم بھی ہو جائے تو ڈیٹا محفوظ رہے گا۔",
-        todayIn:"آج رقم آئی", todayOut:"آج رقم گئی", topDues:"سب سے زیادہ بقایا — یاد دہانی بھیجیں", printLedger:"پرنٹ / پی ڈی ایف",
+        todayIn:"آج رقم آئی", todayOut:"آج رقم گئی", todayCustomers:"آج کے گاہک", todayAmount:"آج کی رقم", topDues:"سب سے زیادہ بقایا — یاد دہانی بھیجیں", printLedger:"پرنٹ / پی ڈی ایف",
         sharePdf:"پی ڈی ایف شیئر کریں", totalReport:"کل رپورٹ (پی ڈی ایف)", pdfDownloaded:"پی ڈی ایف ڈاؤن لوڈ ہو گئی — فائلز / ڈاؤن لوڈز سے شیئر کریں", pdfSaveFailed:"پی ڈی ایف سیو نہیں ہوئی — دوبارہ کوشش کریں",
         cashParty:"پارٹی", pdfBtn:"PDF",
         allDates:"تمام تاریخیں", allParties:"تمام پارٹیاں", makePdf:"پی ڈی ایف بنائیں", noEntriesSel:"اس انتخاب کے لیے کوئی اندراج نہیں ہے", cbStatus:"حالت", cbStatusAll:"تمام", paidUpOnly:"صرف ادا شدہ پارٹیاں", typeAll:"تمام", typeWillGet:"صرف لینے ہیں", typeWillPay:"صرف دینے ہیں",
@@ -1429,8 +1452,12 @@
        predate these keys, so canSeeCard()/cardToggleOn() treat a MISSING
        key as ON — nothing is hidden for an existing share until the
        owner flips a switch. */
-    var SHARE_CARD_OPTS = ["cardGet","cardGive","cardTodayIn","cardTodayOut","cardExpense","cardPaidCust","cardPaidAmt"];
-    var SHARE_CARD_LABEL = { cardGet:"youllGet", cardGive:"youllGive", cardTodayIn:"todayIn", cardTodayOut:"todayOut", cardExpense:"totalExpense", cardPaidCust:"paidCustomers", cardPaidAmt:"paidTotal" };
+    var SHARE_CARD_OPTS = ["cardGet","cardGive","cardPaidCust","cardPaidAmt","cardTodayCust","cardTodayAmt","cardDoctors","cardDoctorPay"];
+    var SHARE_CARD_LABEL = { cardGet:"youllGet", cardGive:"youllGive", cardPaidCust:"paidCustomers", cardPaidAmt:"paidTotal", cardTodayCust:"todayCustomers", cardTodayAmt:"todayAmount", cardDoctors:"doctors", cardDoctorPay:"doctorPayments" };
+    /* v6.59: "cardDoctors" (label reuses the Dashboard doctor section's own
+       "doctors" i18n key) gates the whole per-doctor blocks section;
+       "cardDoctorPay" (label "doctorPayments", new i18n key) hides the
+       payment amounts in the doctor blocks and the doctor detail view. */
     var SHARE_RELEASES_URL = "https://github.com/onlinfarman/safi-khata-releases/releases";
     var myGrants = [];       /* grants I own (I am the owner) */
     var sharePartyQuery = {}; /* v6.25: per-grant party-checklist search text (survives re-renders) */
@@ -1440,7 +1467,7 @@
     var sharedLang = null;   /* my language choice while in shared mode (the owner's language must not change) */
     /* Default toggles for a new grant: everything ON except Delete
        (deleting is destructive, so the owner turns it on deliberately). */
-    function shareToggles(){ return { dashboard:true, customers:true, partydetail:true, addEdit:true, del:false, waCall:true, printPdf:true, cardGet:true, cardGive:true, cardTodayIn:true, cardTodayOut:true, cardExpense:true, cardPaidCust:true, cardPaidAmt:true }; }
+    function shareToggles(){ return { dashboard:true, customers:true, partydetail:true, addEdit:true, del:false, waCall:true, printPdf:true, cardGet:true, cardGive:true, cardPaidCust:true, cardPaidAmt:true, cardTodayCust:true, cardTodayAmt:true, cardDoctors:true, cardDoctorPay:true }; }
     /* Deterministic grant doc id: ownerUid + "_" + grantee email (lowercase).
        The Firestore rules look the grant up by exactly this id. */
     function shareGrantId(ownerUid, email){ return ownerUid + "_" + String(email||"").trim().toLowerCase(); }
@@ -1561,7 +1588,10 @@
       var h = '<div class="docgrid">';
       list.forEach(function(g){
         var gspec = doctorSpecForGroup(g);
-        h += '<button class="docblock" onclick="go(\'doctor\',\''+doctorKey(g.key)+'\')"><span class="nm">'+esc(g.name||t("noDoctor"))+'</span>'+(gspec?'<span class="cnt">'+esc(gspec)+'</span>':"")+'<span class="cnt">'+g.parties.length+' '+esc(t("patients"))+'</span><span class="slab">'+esc(t("totalSale"))+'</span><span class="sval num">'+fmt(doctorSale(g))+'</span></button>';
+        /* v6.59: hide the block's payment amount (Total Sale) when the
+           guest's cardDoctorPay toggle is OFF — name, specialty and
+           patient count stay; owner mode and old grants always show it. */
+        h += '<button class="docblock" onclick="go(\'doctor\',\''+doctorKey(g.key)+'\')"><span class="nm">'+esc(g.name||t("noDoctor"))+'</span>'+(gspec?'<span class="cnt">'+esc(gspec)+'</span>':"")+'<span class="cnt">'+g.parties.length+' '+esc(t("patients"))+'</span>'+(canSeeCard("cardDoctorPay")?'<span class="slab">'+esc(t("totalSale"))+'</span><span class="sval num">'+fmt(doctorSale(g))+'</span>':"")+'</button>';
       });
       h += '</div>';
       return h;
@@ -2274,24 +2304,11 @@
       /* v6.7: in shared mode the dashboard totals show ONLY when the
          Dashboard toggle is ON; everything else below is gated the same way. */
       if(canSee("dashboard")){
-        var ts2 = todayStr(), tin = 0, tout = 0;
-        S.ctx.forEach(function(x){ if(x.date===ts2){ if(x.kind==="in") tin+=x.amount; else tout+=x.amount; } });
-        /* v6.13: expense summary — all-time + today's totals (sale cards
-           removed with Stock/Sale). */
-        var totalExp = 0;
-        S.ctx.forEach(function(x){ if(x.kind==="out") totalExp += (x.amount||0); });
-        /* v6.25: ONE compact 3-per-row grid for the stat cards
-           (same order) — the old three 2-column grids left a
-           half-empty row (Cash in Hand alone) plus wide gaps. Same
-           cards, labels, values, colours and inline sizes; positions
-           only. v6.27: Day Expense card removed on Farman's word —
-           5 cards left. v6.45: those 5 cards in one 3-per-row grid
-           left row 2 with only "Cash out today" + "Total Expense"
-           and an empty third cell (Farman 2026-11-17, mockup
-           confirmed) — row 1 keeps the first 3 cards, row 2 is its
-           own full-width flex row (.dashgrid2) with the last 2 cards
-           at half width each, slightly larger (val 24px vs 22px
-           base). Same cards, labels, values, colours; layout only. */
+        /* v6.59: Cash in today / Cash out today / Total Expense cards
+           removed from the Dashboard on Farman's word (2026-11-26) —
+           their tin/tout/totalExp computation is gone too (used nowhere
+           else in renderHome). 4 stat cards remain: You'll Get,
+           You'll Give, Paid Customers, Paid Amount. */
         /* v6.56: Paid Customers + Paid Amount (Farman 2026-11-24) — the
            settled parties (balance 0) and what they paid in full. One
            full-width row, same .dashgrid2 layout and .stat cards as the
@@ -2307,36 +2324,69 @@
         paidList.forEach(function(p){ paidAmt += partyReceived(p.id); });
         /* v6.58: per-card visibility (Farman 2026-11-26) — each stat
            card renders only when its card toggle is ON for the viewer.
-           Owner mode always sees all 7; a shared viewer with an old
-           grant (keys missing) also sees all 7. When all 7 are visible
-           the rows below are identical to v6.57 (3 + 2 + 2); when some
-           are hidden the visible cards re-flow into one 3-per-row grid
-           so no empty slot is left behind. */
+           Owner mode always sees all 4; a shared viewer with an old
+           grant (keys missing) also sees all 4. When all 4 are visible
+           they render as two .dashgrid2 rows (2 + 2); when some are
+           hidden the visible cards re-flow into one 3-per-row grid
+           so no empty slot is left behind. v6.59: Cash in today /
+           Cash out today / Total Expense cards removed (Farman
+           2026-11-26) — 4 stat cards remain. */
         var dcards = [
           { k:"cardGet", h:'<div class="stat"><div class="sic" style="background:var(--good)">'+ic("down")+'</div><div class="lab">'+esc(t("youllGet"))+'</div><div class="val pos num">'+fmt(T.get)+'</div></div>' },
           { k:"cardGive", h:'<div class="stat"><div class="sic" style="background:var(--danger)">'+ic("up")+'</div><div class="lab">'+esc(t("youllGive"))+'</div><div class="val neg num">'+fmt(T.give)+'</div></div>' },
-          { k:"cardTodayIn", h:'<div class="stat"><div class="sic" style="background:var(--good)">'+ic("down")+'</div><div class="lab">'+esc(t("todayIn"))+'</div><div class="val pos num" style="font-size:19px">'+fmt(tin)+'</div></div>' },
-          { k:"cardTodayOut", h:'<div class="stat"><div class="sic" style="background:var(--danger)">'+ic("up")+'</div><div class="lab">'+esc(t("todayOut"))+'</div><div class="val neg num" style="font-size:24px">'+fmt(tout)+'</div></div>' },
-          { k:"cardExpense", h:'<div class="stat"><div class="sic" style="background:var(--warn)">'+ic("bill")+'</div><div class="lab">'+esc(t("totalExpense"))+'</div><div class="val neg num" style="font-size:24px">'+fmt(totalExp)+'</div></div>' },
           { k:"cardPaidCust", h:'<button type="button" class="stat" onclick="showPaidParties()"><div class="sic" style="background:var(--good)">'+ic("users")+'</div><div class="lab">'+esc(t("paidCustomers"))+'</div><div class="val pos num" style="font-size:24px">'+paidList.length+'</div></button>' },
           { k:"cardPaidAmt", h:'<button type="button" class="stat" onclick="showPaidParties()"><div class="sic" style="background:var(--good)">'+ic("down")+'</div><div class="lab">'+esc(t("paidTotal"))+'</div><div class="val pos num" style="font-size:24px">'+fmt(paidAmt)+'</div></button>' }
         ];
         var dvis = dcards.filter(function(c){ return canSeeCard(c.k); });
         var dgrid1 = '<div class="dashgrid dash" style="margin-top:12px">';
-        if(dvis.length === 7){
-          h += dgrid1 + dcards[0].h + dcards[1].h + dcards[2].h + '</div>'
-            + '<div class="dashgrid2 dash" style="margin-top:8px">' + dcards[3].h + dcards[4].h + '</div>'
-            + '<div class="dashgrid2 dash" style="margin-top:8px">' + dcards[5].h + dcards[6].h + '</div>';
+        if(dvis.length === 4){
+          h += '<div class="dashgrid2 dash" style="margin-top:12px">' + dcards[0].h + dcards[1].h + '</div>'
+            + '<div class="dashgrid2 dash" style="margin-top:8px">' + dcards[2].h + dcards[3].h + '</div>';
         } else if(dvis.length){
           h += dgrid1 + dvis.map(function(c){ return c.h; }).join("") + '</div>';
+        }
+        /* v6.59: Daily stats (Farman 2026-11-26) — "Today" section: how
+           many customers had entries today + today's total amount. An
+           entry counts when its date is today (x.date === todayStr());
+           a customer with several entries today counts ONCE; the amount
+           is the sum of ALL of today's entries (credit + pay, both as
+           positive amounts = today's total transaction volume). Only
+           parties visible on the Khata list count (customers, and in
+           shared mode only granted parties — same rule as the Paid
+           cards, via khataTabList()). Each card has its own share
+           toggle (cardTodayCust / cardTodayAmt); owner mode always
+           sees both; the section is hidden when both are OFF. */
+        var ts = todayStr();
+        var visIds = {};
+        khataTabList().forEach(function(p){ visIds[p.id] = true; });
+        var todayCust = 0, todayAmt = 0, seenToday = {};
+        S.ptx.forEach(function(x){
+          if(x.date !== ts || !visIds[x.partyId]) return;
+          todayAmt += (+x.amount || 0);
+          if(!seenToday[x.partyId]){ seenToday[x.partyId] = true; todayCust++; }
+        });
+        todayAmt = Math.round(todayAmt*100)/100;
+        var tdcards = [
+          { k:"cardTodayCust", h:'<div class="tstat"><div class="sic" style="background:var(--brand)">'+ic("users")+'</div><div class="lab">'+esc(t("todayCustomers"))+'</div><div class="val num" style="font-size:24px">'+todayCust+'</div></div>' },
+          { k:"cardTodayAmt", h:'<div class="tstat"><div class="sic" style="background:var(--brand)">'+ic("down")+'</div><div class="lab">'+esc(t("todayAmount"))+'</div><div class="val num" style="font-size:24px">'+fmt(todayAmt)+'</div></div>' }
+        ];
+        var tdvis = tdcards.filter(function(c){ return canSeeCard(c.k); });
+        if(tdvis.length){
+          h += '<div class="sec-title" style="margin-top:12px">'+esc(t("today"))+'</div>';
+          h += '<div class="tdash">' + tdvis.map(function(c){ return c.h; }).join("") + '</div>';
         }
         /* v6.33 (Farman 2026-11-15, design confirmed): per-doctor blocks
            on the Dashboard — one block per doctor, derived from the
            Doctor Name saved on Khata parties. A new doctor's block
            appears automatically with his first patient; no doctor is
            ever entered separately. */
+        /* v6.59: doctor-blocks visibility (Farman 2026-11-26) — the whole
+           per-doctor section (search + title + blocks) renders only when
+           the cardDoctors toggle is ON for the viewer. Owner mode always
+           sees it; a missing key (old grants) counts as ON via
+           canSeeCard(). */
         var dg = doctorGroups();
-        if(dg.length){
+        if(dg.length && canSeeCard("cardDoctors")){
           /* v6.34: one search box directly above the "Doctors" heading
              (Farman 2026-11-15) — search by doctor name. Styled exactly
              like the Khata search (.searchbar, type="search"). */
@@ -2393,7 +2443,14 @@
          button sits in the card's right side, next to the balance).
          Compact (no block class), same printPdf gate as every other PDF
          button — a shared viewer without it never sees the button. */
-      h+='<div class="docsale"><div><div class="lab">'+esc(t("totalSale"))+'</div><div class="val num">'+fmt(sale)+'</div><div class="cnt">'+g.parties.length+' '+esc(t("patients"))+'</div></div>'+(canSee("printPdf")?'<button class="btn pdfbtn-green" onclick="openDoctorPdfSheet(\''+doctorKey(key)+'\')">'+esc(t("doctorPdfBtn"))+'</button>':'')+'</div>';
+      /* v6.59: hide the Total Sale summary card when the guest's
+         cardDoctorPay toggle is OFF — the doctor name, specialty and
+         patient rows stay visible per the existing share permissions.
+         The PDF button goes with the card (the report is all payment
+         totals); owner mode and old grants always see the card. */
+      if(canSeeCard("cardDoctorPay")){
+        h+='<div class="docsale"><div><div class="lab">'+esc(t("totalSale"))+'</div><div class="val num">'+fmt(sale)+'</div><div class="cnt">'+g.parties.length+' '+esc(t("patients"))+'</div></div>'+(canSee("printPdf")?'<button class="btn pdfbtn-green" onclick="openDoctorPdfSheet(\''+doctorKey(key)+'\')">'+esc(t("doctorPdfBtn"))+'</button>':'')+'</div>';
+      }
       h+='<div class="sec-title">'+esc(t("patients"))+' ('+g.parties.length+')</div>';
       /* v6.39 (Farman: latest on top everywhere) — patients DESCENDING by
          Serial No., same rule as the Khata list: highest serial first. */
@@ -2615,7 +2672,7 @@
        bundled font (fallback font), so the longest figures need the
        extra headroom to fit a ~93px card on a 360px phone. */
     function fitDashAmounts(){
-      var vals = document.querySelectorAll("#app .dash .val");
+      var vals = document.querySelectorAll("#app .dash .val, #app .tdash .val");
       for(var i=0;i<vals.length;i++){
         var el = vals[i];
         var base = 22;
